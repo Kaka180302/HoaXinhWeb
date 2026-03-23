@@ -464,4 +464,183 @@
 
     scriptEl.src = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=responseHandler:${callbackName}&gid=${sheetGid}`;
     document.body.appendChild(scriptEl);
+
+    // *********************Cart*****************************
+    const cartWrap = document.querySelector(".main_cart--wrap");
+    const totalCartEl = document.getElementById("total_cart");
+    const checkAllEl = document.querySelector(".end_cart--checkAll input");
+    const btnOrderCart = document.querySelector(".btn_buyCart");
+
+    let carts = [];
+
+    function saveCart() {
+        localStorage.setItem("cart", JSON.stringify(carts));
+    }
+
+    function loadCart() {
+        const data = localStorage.getItem("cart");
+        carts = data ? JSON.parse(data) : [];
+    }
+
+    const cartCountEl = document.getElementById("cart_count");
+
+    function updateCartCount() {
+        const totalQty = carts.reduce((sum, item) => sum + item.qty, 0);
+        cartCountEl.innerText = totalQty;
+    }
+
+    loadCart();
+    renderCart();
+    updateCartTotal();
+    updateCartCount();
+    function formatPriceCart(price) {
+        return Number(price).toLocaleString("vi-VN") + "đ";
+    }
+
+    function renderCart() {
+
+        if (!carts.length) {
+            cartWrap.innerHTML = "";
+            totalCartEl.innerText = "0đ";
+            return;
+        }
+
+        cartWrap.innerHTML = carts.map((item, index) => `
+            <div class="main_cart--item" data-index="${index}">
+                <div class="main_cart--itemBtnRemove">✕</div>
+                <input type="checkbox" class="cart_check">
+                <img src="${item.image}" class="main_cart--itemImg">
+
+                <div class="main_cart--itemContent">
+                    <h5 class="main_cart--itemName">${item.name}</h5>
+
+                    <div class="main_cart--itemQty">
+                        <div>Số lượng:</div>
+                        <input type="number" class="cart_qty" value="${item.qty}" min="1">
+                    </div>
+
+                    <div class="main_cart--itemPrice">
+                        <div>Giá: </div>
+                        <div>${formatPriceCart(item.price)}</div>
+                    </div>
+                </div>
+
+                <div class="main_cart--itemTotal">${formatPriceCart(item.price * item.qty)}</div>
+            </div>
+        `).join("");
+
+        bindCartEvents();
+        updateCartTotal();
+        updateCartCount();
+    }
+
+    const addCartBtn = document.querySelector(".popup_product--addCartBtn");
+
+    if (addCartBtn) {
+        addCartBtn.addEventListener("click", () => {
+
+            const name = popupProductTitle.textContent;
+            const price = Number(popupProductBuyBtn.dataset.price || 0);
+            const image = popupProductImage.src;
+            const qty = Number(popupProductQty.value || 1);
+
+            const exist = carts.find(item => item.name === name);
+
+            if (exist) {
+                exist.qty += qty;
+            } else {
+                carts.push({ name, price, image, qty });
+                
+            }
+
+            saveCart();
+            renderCart();
+            closeProductDetail();
+        });
+    }
+
+    function bindCartEvents() {
+
+        
+        document.querySelectorAll(".main_cart--itemBtnRemove").forEach(btn => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+                
+                const index = e.target.closest(".main_cart--item").dataset.index;
+                carts.splice(index, 1);
+                updateCartCount();
+                saveCart();
+                renderCart();
+            };
+        });
+
+        document.querySelectorAll(".cart_qty").forEach(input => {
+            input.oninput = (e) => {
+                const index = e.target.closest(".main_cart--item").dataset.index;
+                carts[index].qty = Number(e.target.value);
+                saveCart();
+                renderCart();
+            };
+        });
+
+        document.querySelectorAll(".cart_check").forEach(cb => {
+            cb.onchange = updateCartTotal;
+        });
+    }
+
+    function updateCartTotal() {
+        let total = 0;
+
+        document.querySelectorAll(".main_cart--item").forEach((itemEl, index) => {
+            const checked = itemEl.querySelector(".cart_check").checked;
+
+            if (checked) {
+                total += carts[index].price * carts[index].qty;
+            }
+        });
+
+        totalCartEl.innerText = formatPriceCart(total);
+    }
+
+    checkAllEl.onchange = () => {
+        const checked = checkAllEl.checked;
+
+        document.querySelectorAll(".cart_check").forEach(cb => {
+            cb.checked = checked;
+        });
+
+        updateCartTotal();
+    };
+
+    btnOrderCart.onclick = () => {
+
+    const selectedItems = carts.filter((item, index) => {
+        const el = document.querySelector(`.main_cart--item[data-index="${index}"]`);
+        return el && el.querySelector(".cart_check").checked;
+    });
+
+    if (!selectedItems.length) {
+        alert("Chọn ít nhất 1 sản phẩm");
+        return;
+    }
+
+    console.log("addProduct hiện tại:", window.addProduct);
+
+    if (typeof window.addProduct !== "function") {
+        console.error("addProduct chưa sẵn sàng!");
+        return;
+    }
+
+    window.productBox.innerHTML = "";
+
+    window.openOrder();
+
+    selectedItems.forEach(item => {
+        console.log("CALL addProduct:", item);
+        window.addProduct(item.name, item.price, item.qty);
+    });
+
+    window.updateTotal();
+};
+    
 })();

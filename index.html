@@ -159,6 +159,8 @@
                         <circle cx="19" cy="21" r="1"></circle>
                         <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
                     </svg>
+
+                    <span id="cart_count" class="cart_count">0</span>
                 </div>
 
 
@@ -523,6 +525,7 @@
                     <div class="popup_productAction">
                         <input type="number" name="qty" id="qty">
                         <button class="popup_product--buyBtn no-btn" type="button">Đặt mua</button>
+                        <button class="popup_product--addCartBtn">Thêm vào giỏ hàng</button>
                     </div>
                 </div>
             </div>
@@ -554,6 +557,7 @@
         </div>
     </div>
     <!-- End popup product -->
+
     <!-- Shopping cart -->
     <div class="cart">
         <div class="header_cart">
@@ -561,7 +565,12 @@
             <div id="btn_closeCart" class="header_cart-btnClose">✕</div>
         </div>
         <div class="main_cart">
-            <div class="main_cartWrap">
+
+            <div class="main_cart--detail">
+                <div>Sản phẩm</div>
+                <div>Thành tiền</div>
+            </div>
+            <div class="main_cart--empty">
                 <svg class="main_cart--logo" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" class="mb-4">
                     <circle cx="8" cy="21" r="1"></circle>
@@ -570,9 +579,50 @@
                 </svg>
                 <h3 class="main_cart--text">Giỏ hàng trống</h3>
             </div>
+
+            <div class="main_cart--wrap">
+                <!-- <div class="main_cart--item">
+                    <div class="main_cart--itemBtnRemove">✕</div>
+                    <input type="checkbox" name="" id="">
+                    <img src="assets/img/mp_kemduongam.png" alt="" class="main_cart--itemImg">
+
+                    <div class="main_cart--itemContent">
+                        <h5 class="main_cart--itemName">Máy lọc không khí</h5>
+
+                        <div class="main_cart--itemQty">
+                            <div>Số lượng:</div>
+                            <input type="number" name="" id="" min="0" value="1">
+                        </div>
+
+                        <div class="main_cart--itemPrice">
+                            <div>Giá: </div>
+                            <div>200,000,000đ</div>
+                        </div>
+                    </div>
+
+                    <div class="main_cart--itemTotal">200,000,000đ</div>
+                </div> -->
+
+            </div>
+        </div>
+
+        <div class="end_cart">
+            <div class="end_cart--checkAll">
+                <input type="checkbox" name="checkAll" id="">
+                <div>Chọn tất cả</div>
+            </div>
+
+            
+            <div class="end_cart--total">
+                <div>Tổng tiền: </div>
+                <div id="total_cart">0đ</div>
+            </div>
+
+            <div class="btn_buyCart">Đặt mua</div>
         </div>
     </div>
     <!-- End shopping cart -->
+
     <!-- Script JS -->
     <script>
         function googleTranslateElementInit() {

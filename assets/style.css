@@ -4,11 +4,12 @@
     --gold-1: #A07847;
     --gold-3: #DDAC6C;
     --gold-4: #F9C682;
+    --gold-5: #fffaf4;
     --hx-gold-1: #A07847;
     --hx-gold-2: #B38954;
     --hx-gold-3: #DDAC6C;
     --hx-gold-4: #F9C682;
-  
+    
 
 }
 
@@ -187,6 +188,18 @@ img{
 .icon_cartWrap{
     width: 2%;
     height: 10%;
+    position: relative;
+}
+
+.cart_count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: red;
+    color: white;
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 50%;
 }
 
 #icon_cart{
@@ -769,6 +782,20 @@ img{
     transform: translateX(-50%);
 }
 
+.popup_product--addCartBtn{
+    width: 30%;
+    border: 1px solid var(--gold-4);
+    padding: 14px 0;
+    background: none;
+    border-radius: 32px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 400;
+}
+.popup_product--addCartBtn:hover{
+    background-color: var(--gold-5);
+}
+
 .product_listItem--title{
     font-size: 1.2rem;
     color: black;
@@ -1075,6 +1102,7 @@ img{
 /* End footer */
 
 /* Form popup */
+
 .order{
     position:fixed;
     inset:0;
@@ -1098,11 +1126,13 @@ img{
 .order__modal{
     position:relative;
     width:420px;
+    height: 90%;
     background:#fff;
     padding:32px;
     border-radius:18px;
     box-shadow:0 20px 40px rgba(0,0,0,0.15);
     z-index:2;
+    overflow: auto;
 }
 
 .order__title{
@@ -1453,7 +1483,6 @@ input{
 
     .order__modal{
         width: 60%;
-        height: auto;
     }
 
     .order__qr img{
@@ -1817,7 +1846,7 @@ input{
 }
 
 .header_cart{
-    background-color: white;
+    background: linear-gradient(135deg, var(--gold-1), var(--gold-3) 60%, var(--gold-4));
     width: 100%;
     height: 10%;
     display: flex;
@@ -1837,24 +1866,149 @@ input{
     cursor: pointer;
 }
 
-.main_cartWrap{
+.main_cart--empty{
     text-align: center;
+    display: none;
 }
 
 .main_cart{
+    position: relative;
     width: 100%;
-    height: 100%;
+    height: 80%;
     display: flex;
     align-items: center;
-    justify-content: center;
+    flex-direction: column;
     font-size: 2rem;
     background-color: white;
+    overflow: auto;
+    
+}
+
+.main_cart--detail{
+    background-color: #f5f5f5;
+    width: 100%;
+    font-size: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1% 10%;
 }
 
 .main_cart--logo{
     width: 50%;
     height: auto;
 }
+
+.main_cart--wrap{
+    background-color: white;
+    width: 100%;
+    height: 100%;
+}
+
+.main_cart--item{
+    background-color: var(--gold-5);
+    border: 1px solid var(--gold-4);
+    height: 15%;
+    margin: 4px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+}
+
+.main_cart--itemBtnRemove{
+    position: absolute;
+    top: 0;
+    right: 4px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.main_cart--item>input{
+    margin-left: 8px;
+}
+.main_cart--item img{
+    width: 20%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.main_cart--itemContent{
+    font-size: 0.9rem;
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.main_cart--itemName {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 1rem;
+
+  line-height: 1.4;
+  max-height: calc(1.4em * 2); /* đảm bảo đúng 2 dòng */
+}
+
+.main_cart--itemPrice,
+.main_cart--itemQty{
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    gap: 4px;
+}
+
+.main_cart--itemQty input{
+    width: 20%;
+}
+
+.main_cart--itemTotal{
+    width: 20%;
+    font-size: 1rem;
+    text-align: center;
+}
+
+
+
+.end_cart{
+    width: 100%;
+    height: 10%;
+    padding: 0 12px;
+    background: linear-gradient(135deg, var(--gold-1), var(--gold-3) 60%, var(--gold-4));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.end_cart--checkAll{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+}
+
+.end_cart--total{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.btn_buyCart{
+    width: 30%;
+    padding: 12px 16px;
+    text-align: center;
+    background-color: #0b0b0b;
+    color: white;
+    border-radius: 32px;
+    cursor: pointer;
+}
+/* End cart */
 
 /* Logo xoay */
 

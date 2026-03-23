@@ -1,5 +1,7 @@
-
-// *******************Header********************
+window.addEventListener("DOMContentLoaded", () => {
+   
+  console.log("SCRIPT START")
+  // *******************Header********************
 const header = document.querySelector('.header_info');
 
 window.addEventListener('scroll', () => {
@@ -63,7 +65,7 @@ setInterval(nextSlide,3000)
 
 const orderPopup = document.getElementById("order")
 const closeBtn = document.querySelector(".order__close")
-const productBtnSelector = ".product_buyBtn, .product_hoverBtn, .product_buyBtn--detail"
+const productBtnSelector = ".product_buyBtn, .product_hoverBtn, .product_buyBtn--detail, .btn_buyCart"
 
 const productBox = document.getElementById("orderProducts")
 const addProductBtn = document.getElementById("addProduct")
@@ -99,12 +101,6 @@ function buildOrderOptionsHtml(selectedName = "", selectedPrice = "") {
 
     return optionsHtml
   }
-
-  optionsHtml += `
-      <option data-price="24000">Mat na chong lao hoa - 24,000d</option>
-      <option data-price="350000">Mieng tay trang - 350,000d</option>
-      <option data-price="400000">Kem chong nang - 400,000d</option>
-  `
 
   return optionsHtml
 }
@@ -201,74 +197,10 @@ bindDynamicProductButtons()
 window.bindDynamicProductButtons = bindDynamicProductButtons
 window.refreshOrderProductSelects = refreshOrderProductSelects
 
-
-
-function addProduct(name = "", price = 0){
-
-  const row = document.createElement("div")
-  row.className = "order__productRow"
-
-  row.innerHTML = `
-
-    <select class="order__select">
-
-      <option value="">--Chọn sản phẩm--</option>
-
-      <option data-price="24000">Mặt nạ chống lão hoá - 24,000đ</option>
-
-      <option data-price="350000">Miếng tẩy trang - 350,000đ</option>
-
-      <option data-price="400000">Kem chống nắng - 400,000đ</option>
-
-    </select>
-
-    <input
-      type="number"
-      name = "qty"
-      class="order__qty"
-      value="1"
-      min="1"
-    >
-
-    <button type="button" class="order__remove">
-      x
-    </button>
-  `
-
-  productBox.appendChild(row)
-
-  // chọn đúng sản phẩm khi mở popup
-  if(name){
-
-    const select = row.querySelector("select")
-    let hasMatchedOption = false
-
-    for(let option of select.options){
-
-      if(option.text === name){
-        option.selected = true
-        hasMatchedOption = true
-      }
-
-    }
-
-    if(!hasMatchedOption){
-      const customOption = document.createElement("option")
-      customOption.text = name
-      customOption.value = name
-      customOption.dataset.price = price || 0
-      customOption.selected = true
-      select.appendChild(customOption)
-    }
-
-  }
-
-  updateTotal()
-}
-
 window.addProduct = addProduct
 
-function addProduct(name = "", price = 0){
+function addProduct(name = "", price = 0 ,qty = 1){
+  console.log("ADD PRODUCT:", name, price, qty);
 
   const row = document.createElement("div")
   row.className = "order__productRow"
@@ -283,7 +215,7 @@ function addProduct(name = "", price = 0){
       type="number"
       name = "qty"
       class="order__qty"
-      value="1"
+      value="${qty}"
       min="1"
     >
 
@@ -326,6 +258,16 @@ function addProduct(name = "", price = 0){
 
   addProductBtn.onclick = ()=>{
 
+  const rows = document.querySelectorAll(".order__productRow")
+  const lastRow = rows[rows.length - 1]
+
+  if (lastRow) {
+    const select = lastRow.querySelector("select")
+    if (!select.value) {
+      alert("Chọn sản phẩm trước đã 😅")
+      return
+    }
+  }
     addProduct()
 
   }
@@ -528,12 +470,16 @@ const menu = document.querySelector(".menu_nav")
 const openBtn = document.getElementById("menuToggle")
 const closeBtnMobile = document.getElementById("btn_close")
 
-openBtn.onclick = function(){
+if (openBtn) {
+  openBtn.onclick = function(){
     menu.classList.add("active")
+  }
 }
 
-closeBtnMobile.onclick = function(){
+if (closeBtnMobile) {
+  closeBtnMobile.onclick = function(){
     menu.classList.remove("active")
+  }
 }
 
 document.addEventListener("click", (e) => {
@@ -555,7 +501,6 @@ let maxIndex = 0;
 
 let visibleItems = 3; 
 
-// LẤY DANH SÁCH ITEM
 function getProductItems() {
     return Array.from(document.querySelectorAll(".product_listItem"));
 }
@@ -565,7 +510,6 @@ function getVisibleProductItems() {
 }
 
 
-// TÍNH WIDTH
 function getItemWidth() {
     const firstVisibleItem = getVisibleProductItems()[0] || getProductItems()[0];
 
@@ -577,7 +521,6 @@ function getItemWidth() {
     return firstVisibleItem.offsetWidth + gap;
 }
 
-// UPDATE BUTTON
 function updateButtons() {
     if (!prevBtn_product || !nextBtn_product) return;
 
@@ -586,13 +529,10 @@ function updateButtons() {
 }
 
 
-// MOVE SLIDER
 function moveSlider() {
     track.style.transform = `translateX(-${index_product * getItemWidth()}px)`;
 }
 
-
-// REFRESH (QUAN TRỌNG NHẤT)
 window.refreshProductSlider = function () {
     const items = getVisibleProductItems();
 
@@ -608,14 +548,12 @@ window.refreshProductSlider = function () {
 
     maxIndex = Math.max(0, totalItems - visibleItems);
 
-    // reset lại vị trí khi reload data / filter
     index_product = 0;
     moveSlider();
 
     updateButtons();
 };
 
-// EVENT BUTTON
 if (nextBtn_product) {
     nextBtn_product.addEventListener("click", () => {
         if (index_product < maxIndex) {
@@ -655,7 +593,7 @@ track.addEventListener("touchmove", (e) => {
     currentX = e.touches[0].clientX;
     const diff = currentX - startX;
 
-    // kéo theo tay (preview nhẹ)
+    
     track.style.transform = `translateX(${-index_product * getItemWidth() + diff}px)`;
 });
 
@@ -664,13 +602,13 @@ track.addEventListener("touchend", () => {
 
     const diff = currentX - startX;
 
-    const threshold = 50; // độ nhạy vuốt
+    const threshold = 50;
 
     if (diff < -threshold && index_product < maxIndex) {
-        // vuốt trái → next
+        
         index_product++;
     } else if (diff > threshold && index_product > 0) {
-        // vuốt phải → prev
+        
         index_product--;
     }
 
@@ -680,13 +618,11 @@ track.addEventListener("touchend", () => {
     isDragging = false;
 });
 
-// update button trạng thái
 function updateButtons() {
     prevBtn_product.classList.toggle("disabled", index_product === 0);
     nextBtn_product.classList.toggle("disabled", index_product >= maxIndex);
 }
 
-// next
 nextBtn_product.addEventListener("click", () => {
     if (index_product < maxIndex) {
         index_product++;
@@ -695,7 +631,6 @@ nextBtn_product.addEventListener("click", () => {
     }
 });
 
-// prev
 prevBtn_product.addEventListener("click", () => {
     if (index_product > 0) {
         index_product--;
@@ -708,11 +643,9 @@ prevBtn_product.addEventListener("click", () => {
 // ************* FILTER FUNCTION (CHUNG) *************
 function filterProducts(filter) {
 
-    // reset slider
     index_product = 0;
     track.style.transform = `translateX(0px)`;
 
-    // filter
     getProductItems().forEach(item => {
         const category = item.getAttribute("data-category");
 
@@ -720,7 +653,6 @@ function filterProducts(filter) {
             (filter === "all" || filter === category) ? "block" : "none";
     });
 
-    // tính lại maxIndex
     const visibleProducts = getVisibleProductItems();
     maxIndex = Math.max(0, visibleProducts.length - visibleItems);
 
@@ -776,6 +708,8 @@ window.filterProducts = filterProducts;
 window.refreshProductSlider = refreshProductSlider;
 refreshProductSlider();
 
+// Cart
+
 const cart = document.querySelector(".cart")
 const openBtn_cart = document.querySelectorAll(".icon_cartWrap")
 const closeBtnCart = document.getElementById("btn_closeCart")
@@ -788,9 +722,10 @@ openBtn_cart.forEach(btn => {
   })
 
 })
-closeBtnCart.onclick = function(){
+if (closeBtnCart) {
+  closeBtnCart.onclick = function(){
     cart.classList.remove("active_cart")
-
+  }
 }
 
 document.addEventListener("click", (e) => {
@@ -800,6 +735,16 @@ document.addEventListener("click", (e) => {
     }
 
 })
+
+window.addProduct = addProduct;
+window.updateTotal = updateTotal;
+window.openOrder = openOrder;
+window.productBox = productBox;
+
+
+
+
+// End Cart
 
 // **************logo_xoay******************
 const orbits = document.querySelectorAll('.orbit');
@@ -817,4 +762,7 @@ orbits.forEach((item, index) => {
     item.style.animation = `spinOrbit ${duration}s linear infinite`;
 });
 
+
+console.log("SCRIPT END")
+});
 
