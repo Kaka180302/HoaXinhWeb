@@ -73,6 +73,33 @@ img{
     border-radius: 10px;
 }
 
+/* notificate add cart */
+.toast-msg {
+    position: fixed;
+    top: -100px; /* Ban đầu giấu nó lên trên cùng, ngoài màn hình */
+    left: 50%;
+    transform: translateX(-50%); /* Căn giữa màn hình */
+    background-color: #28a745; /* Màu xanh lá báo thành công */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 999999; /* Luôn nằm trên cùng */
+    font-size: 16px;
+    font-weight: 600;
+    transition: top 0.4s ease, opacity 0.4s ease; /* Hiệu ứng trượt và mờ */
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    pointer-events: none; /* Không cho click nhầm vào thông báo */
+}
+
+/* Class này sẽ được JS thêm vào để kéo thông báo xuống */
+.toast-msg.show {
+    top: 30px; /* Trượt xuống cách top 30px */
+    opacity: 1;
+}
+
 /* HEADER */
 .header {
     width: 100%;
@@ -424,12 +451,10 @@ img{
 }
 
 #qty{
-    width: 120px;
-    min-width: 120px;
+    width: 40px;
+    min-width: 40px;
     height: 40px;
-    padding: 8px 12px;
-    border: 1px solid #d9d9d9;
-    border-radius: 10px;
+    border: none;
     font-size: 1rem;
 }
 
@@ -789,8 +814,8 @@ img{
     background: none;
     border-radius: 32px;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 400;
+    font-size: 0.8rem;
+    font-weight: 600;
 }
 .popup_product--addCartBtn:hover{
     background-color: var(--gold-5);
@@ -811,8 +836,8 @@ img{
     .popup_productWrap{
         width: min(920px, calc(100% - 32px));
         max-height: 88vh;
-        left: 16px;
-        top: 16px;
+        left: 5%;
+        top: 12%;
         gap: 24px;
         padding: 24px;
         z-index: 7000;
@@ -1481,6 +1506,10 @@ input{
         padding: 5%;
     }
 
+    .order{
+        z-index: 9000;
+    }
+
     .order__modal{
         width: 60%;
     }
@@ -1580,24 +1609,43 @@ input{
 }
 
 .header_logo{
-    width: 30%;
+    width: 40%;
+    margin-left: 8px;
+}
+
+.header_mobileWrap{
+    width: 50%;
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    align-items: center;
+    padding-right: 12px;
+}
+
+.lang-flags{
+    margin-top: 12px;
 }
 
 .icon_mobile{
-    width: 70%;
+    width: 150%;
     height: auto;
     fill: var(--gold);
 }
 
 .icon_cartWrap{
-    width: 100%;
+    width: 10%;
     height: auto;
     font-size: 1.3rem;
     font-weight: 700;
 }
 
 #icon_cart{
-    width: 14%;
+    width: 120%;
+}
+
+.cart_count{
+    font-size: 8px;
+    padding: 2px 4px;
 }
 .menu_toggle{
     display: inline-block;
@@ -1740,6 +1788,21 @@ input{
     
 }
 
+.popup_product--addCartBtn{
+    font-size: 0.8rem;
+    width: 40%;
+}
+
+.popup_productAction{
+    justify-content: space-between;
+}
+
+.popup_product--buyBtn{
+    width: 30%;
+    padding: 0 12px;
+}
+
+
 
 
 /* CERTIFICATE */
@@ -1800,6 +1863,9 @@ input{
 
 /* ORDER FORM */
 
+.order{
+    z-index: 9000;
+}
 .order__modal{
     width:90%;
     padding:20px;
@@ -1824,6 +1890,11 @@ input{
 
 .abouts_logoBrand{
     display: none;
+}
+
+/* Cart */
+.main_cart--detail{
+    padding: 1% 0;
 }
 
 }
@@ -1867,8 +1938,15 @@ input{
 }
 
 .main_cart--empty{
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
     display: none;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 25%;
 }
 
 .main_cart{
@@ -1880,8 +1958,6 @@ input{
     flex-direction: column;
     font-size: 2rem;
     background-color: white;
-    overflow: auto;
-    
 }
 
 .main_cart--detail{
@@ -1889,9 +1965,10 @@ input{
     width: 100%;
     font-size: 1rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     align-items: center;
-    padding: 1% 10%;
+    gap: 62%;
+    padding: 1% 2%;
 }
 
 .main_cart--logo{
@@ -1903,6 +1980,8 @@ input{
     background-color: white;
     width: 100%;
     height: 100%;
+    overflow: auto;
+    
 }
 
 .main_cart--item{
@@ -1944,7 +2023,7 @@ input{
 
 .main_cart--itemName {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
   font-size: 1rem;
@@ -1957,6 +2036,7 @@ input{
 .main_cart--itemQty{
     width: 100%;
     display: flex;
+    align-items: center;
     justify-content: flex-start;
     gap: 4px;
 }
@@ -1990,6 +2070,8 @@ input{
     gap: 12px;
 }
 
+
+
 .end_cart--total{
     display: flex;
     justify-content: flex-start;
@@ -2000,8 +2082,8 @@ input{
 }
 
 .btn_buyCart{
-    width: 30%;
-    padding: 12px 16px;
+    width: 20%;
+    padding: 12px 8px;
     text-align: center;
     background-color: #0b0b0b;
     color: white;
@@ -2127,4 +2209,75 @@ input{
     pointer-events: none;
     width: 0;
     height: 0;
+}
+
+/* ================= STYLE NÚT TĂNG GIẢM VÀ CHECKBOX ================= */
+.qty-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+    width: 55%;
+}
+
+.qty-btn {
+    background-color: #f5f5f5;
+    border: none;
+    padding: 4px 12px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+    color: #333;
+}
+
+.qty-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.cart_qty {
+    width: 40px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    outline: none;
+    font-size: 15px;
+    -moz-appearance: textfield; /* Ẩn mũi tên mặc định trên Firefox */
+}
+
+/* Ẩn mũi tên mặc định trên Chrome/Safari */
+.cart_qty::-webkit-outer-spin-button,
+.cart_qty::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Đổi màu ô checkbox */
+.cart_check, .end_cart--checkAll input {
+    accent-color: var(--gold-5); /* Màu nâu vàng hợp với tông web, ông có thể đổi mã màu tùy ý */
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.qty-wrapperProduct{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cart_qtyProduct{
+    width: 20px;
+    text-align: center;
+    border: none;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+    outline: none;
+    font-size: 15px;
+    -moz-appearance: textfield; /* Ẩn mũi tên mặc định trên Firefox */
 }

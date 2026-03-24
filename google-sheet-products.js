@@ -482,11 +482,13 @@
         carts = data ? JSON.parse(data) : [];
     }
 
-    const cartCountEl = document.getElementById("cart_count");
+    const cartCountEl = document.querySelectorAll(".cart_count");
 
     function updateCartCount() {
         const totalQty = carts.reduce((sum, item) => sum + item.qty, 0);
-        cartCountEl.innerText = totalQty;
+        cartCountEl.forEach(qty => {
+            qty.innerHTML = totalQty;
+        })
     }
 
     loadCart();
@@ -497,13 +499,29 @@
         return Number(price).toLocaleString("vi-VN") + "đ";
     }
 
+    
+
     function renderCart() {
+
+        const emptyCartMsg = document.querySelector(".main_cart--empty");
+        const cartDetailHeader = document.querySelector(".main_cart--detail");
+        
 
         if (!carts.length) {
             cartWrap.innerHTML = "";
             totalCartEl.innerText = "0đ";
+            
+            
+            emptyCartMsg.style.display = "flex"; 
+            
+            cartDetailHeader.style.display = "none";
+            
             return;
         }
+
+        emptyCartMsg.style.display = "none";
+        
+        cartDetailHeader.style.display = "flex"; 
 
         cartWrap.innerHTML = carts.map((item, index) => `
             <div class="main_cart--item" data-index="${index}">
@@ -516,7 +534,11 @@
 
                     <div class="main_cart--itemQty">
                         <div>Số lượng:</div>
-                        <input type="number" class="cart_qty" value="${item.qty}" min="1">
+                        <div class="qty-wrapper">
+                            <button type="button" class="qty-btn qty-minus">-</button>
+                            <input type="number" class="cart_qty" value="${item.qty}" min="1">
+                            <button type="button" class="qty-btn qty-plus">+</button>
+                        </div>
                     </div>
 
                     <div class="main_cart--itemPrice">
@@ -532,6 +554,28 @@
         bindCartEvents();
         updateCartTotal();
         updateCartCount();
+    }
+
+    function showAddCartSuccess() {
+        
+        const toast = document.createElement("div");
+        toast.className = "toast-msg";
+        toast.innerHTML = "✔ Đã thêm sản phẩm vào giỏ hàng!";
+
+        
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.classList.add("show");
+        }, 10);
+
+        setTimeout(() => {
+            toast.classList.remove("show");
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 400);
+        }, 3000);
     }
 
     const addCartBtn = document.querySelector(".popup_product--addCartBtn");
@@ -555,38 +599,93 @@
 
             saveCart();
             renderCart();
-            closeProductDetail();
+            showAddCartSuccess();
         });
     }
 
-    function bindCartEvents() {
+function bindCartEvents() {
+    // 1. Nút xóa sản phẩm
+    document.querySelectorAll(".main_cart--itemBtnRemove").forEach(btn => {
+        btn.onclick = (e) => {
+            e.stopPropagation();
+            const index = e.target.closest(".main_cart--item").dataset.index;
+            carts.splice(index, 1);
+            updateCartCount();
+            saveCart();
+            renderCart(); // Xóa sản phẩm thì bắt buộc phải render lại để cập nhật danh sách
+            
+            // Nếu xóa hết giỏ hàng thì bỏ check "Chọn tất cả"
+            if(carts.length === 0) checkAllEl.checked = false; 
+        };
+    });
 
-        
-        document.querySelectorAll(".main_cart--itemBtnRemove").forEach(btn => {
-            btn.onclick = (e) => {
-                e.stopPropagation();
-                
-                const index = e.target.closest(".main_cart--item").dataset.index;
-                carts.splice(index, 1);
-                updateCartCount();
-                saveCart();
-                renderCart();
-            };
-        });
+    // 2. Ô input thay đổi số lượng
+    document.querySelectorAll(".cart_qty").forEach(input => {
+        input.oninput = (e) => {
+            const itemEl = e.target.closest(".main_cart--item");
+            const index = itemEl.dataset.index;
+            let newQty = Number(e.target.value);
 
-        document.querySelectorAll(".cart_qty").forEach(input => {
-            input.oninput = (e) => {
-                const index = e.target.closest(".main_cart--item").dataset.index;
-                carts[index].qty = Number(e.target.value);
-                saveCart();
-                renderCart();
-            };
-        });
+            // Đảm bảo số lượng không được nhỏ hơn 1
+            if (newQty < 1) {
+                newQty = 1;
+                e.target.value = 1;
+            }
 
-        document.querySelectorAll(".cart_check").forEach(cb => {
-            cb.onchange = updateCartTotal;
-        });
-    }
+            // Cập nhật mảng giỏ hàng và lưu lại
+            carts[index].qty = newQty;
+            saveCart();
+
+            // Chỉ cập nhật DOM: tính lại thành tiền của RIÊNG sản phẩm này thay vì render toàn bộ giỏ hàng
+            const itemTotalEl = itemEl.querySelector(".main_cart--itemTotal");
+            if (itemTotalEl) {
+                itemTotalEl.innerText = formatPriceCart(carts[index].price * carts[index].qty);
+            }
+
+            // Cập nhật tổng số lượng icon giỏ hàng và tổng tiền đang chọn
+            updateCartCount();
+            updateCartTotal();
+        };
+    });
+
+    // 3. Tự động cập nhật nút "Chọn tất cả" nếu user check tay từng sản phẩm
+    document.querySelectorAll(".cart_check").forEach(cb => {
+        cb.onchange = () => {
+            updateCartTotal();
+            
+            // Kiểm tra xem tất cả các sản phẩm có đang được check không
+            const totalChecks = document.querySelectorAll(".cart_check").length;
+            const checkedCount = document.querySelectorAll(".cart_check:checked").length;
+            
+            // Nếu tổng số check bằng với số sản phẩm, tự động đánh dấu checkAll
+            checkAllEl.checked = (totalChecks > 0 && totalChecks === checkedCount);
+        };
+    });
+
+    // 4. Bắt sự kiện bấm nút Trừ
+    document.querySelectorAll(".qty-minus").forEach(btn => {
+        btn.onclick = (e) => {
+            // Tìm ô input nằm ngay kế bên nút Trừ
+            const input = e.target.nextElementSibling;
+            if (input.value > 1) {
+                input.value = Number(input.value) - 1;
+                // Kích hoạt sự kiện 'input' để nó tự chạy logic tính tiền ở trên
+                input.dispatchEvent(new Event('input', { bubbles: true })); 
+            }
+        };
+    });
+
+    // 5. Bắt sự kiện bấm nút Cộng
+    document.querySelectorAll(".qty-plus").forEach(btn => {
+        btn.onclick = (e) => {
+            // Tìm ô input nằm ngay kế bên trước nút Cộng
+            const input = e.target.previousElementSibling;
+            input.value = Number(input.value) + 1;
+            // Kích hoạt sự kiện 'input' để nó tự chạy logic tính tiền ở trên
+            input.dispatchEvent(new Event('input', { bubbles: true })); 
+        };
+    });
+}
 
     function updateCartTotal() {
         let total = 0;
@@ -642,5 +741,33 @@
 
     window.updateTotal();
 };
+
+// ================= XỬ LÝ NÚT TĂNG GIẢM SỐ LƯỢNG Ở POPUP =================
+const popupQtyMinus = document.getElementById("popup-qty-minus");
+const popupQtyPlus = document.getElementById("popup-qty-plus");
+const popupQtyInput = document.getElementById("qty");
+
+if (popupQtyMinus && popupQtyPlus && popupQtyInput) {
+    // Bấm nút Trừ
+    popupQtyMinus.addEventListener("click", () => {
+        let currentQty = Number(popupQtyInput.value);
+        if (currentQty > 1) {
+            popupQtyInput.value = currentQty - 1;
+        }
+    });
+
+    // Bấm nút Cộng
+    popupQtyPlus.addEventListener("click", () => {
+        let currentQty = Number(popupQtyInput.value);
+        popupQtyInput.value = currentQty + 1;
+    });
+
+    // Ngăn khách hàng tự gõ số âm hoặc số 0 vào ô
+    popupQtyInput.addEventListener("input", () => {
+        if (popupQtyInput.value !== "" && Number(popupQtyInput.value) < 1) {
+            popupQtyInput.value = 1;
+        }
+    });
+}
     
 })();

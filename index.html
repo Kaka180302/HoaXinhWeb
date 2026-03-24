@@ -34,15 +34,29 @@
             <a href="#" class="header_logoLink no_link">
                 <img class="header_logo" src="assets/img/logo_HX.png">
             </a>
-            <button class="menu_toggle" id="menuToggle">
-                <svg class="icon_mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                    <path d="M96 160C96 142.3 110.3 128 128 128L512 128C529.7 128 544 142.3 544 160C544 177.7
-                        529.7 192 512 192L128 192C110.3 192 96 177.7 96 160zM96 320C96 302.3 110.3 288 128 288L512
-                        288C529.7 288 544 302.3 544 320C544 337.7 529.7 352 512 352L128 352C110.3 352 96 337.7 96
-                        320zM544 480C544 497.7 529.7 512 512 512L128 512C110.3 512 96 497.7 96 480C96 462.3 110.3
-                        448 128 448L512 448C529.7 448 544 462.3 544 480z" />
-                </svg>
-            </button>
+
+            <div class="header_mobileWrap">
+                <div title="Giỏ hàng" class="icon_cartWrap">
+                    <svg id="icon_cart" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" class="mb-4">
+                        <circle cx="8" cy="21" r="1"></circle>
+                        <circle cx="19" cy="21" r="1"></circle>
+                        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                    </svg>
+
+                    <span id="cart_count" class="cart_count">0</span>
+                </div>
+
+                <button class="menu_toggle" id="menuToggle">
+                    <svg class="icon_mobile" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                        <path d="M96 160C96 142.3 110.3 128 128 128L512 128C529.7 128 544 142.3 544 160C544 177.7
+                            529.7 192 512 192L128 192C110.3 192 96 177.7 96 160zM96 320C96 302.3 110.3 288 128 288L512
+                            288C529.7 288 544 302.3 544 320C544 337.7 529.7 352 512 352L128 352C110.3 352 96 337.7 96
+                            320zM544 480C544 497.7 529.7 512 512 512L128 512C110.3 512 96 497.7 96 480C96 462.3 110.3
+                            448 128 448L512 448C529.7 448 544 462.3 544 480z" />
+                    </svg>
+                </button>
+            </div>
         </div>
         <div class="slider">
 
@@ -66,17 +80,6 @@
                             <a href="#Certificate" class="header_navList--link no_link">Chứng nhận</a>
                         </li>
 
-                        <li title="Giỏ hàng" class="icon_cartWrap header_navList--item">
-
-                            Giỏ hàng
-                            <svg id="icon_cart" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" class="mb-4">
-                                <circle cx="8" cy="21" r="1"></circle>
-                                <circle cx="19" cy="21" r="1"></circle>
-                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
-                            </svg>
-                            
-                        </li>
                     </ul>
                 </div>
 
@@ -315,7 +318,7 @@
                         252.6zM320 320C355.3 320 384 291.3 384 256C384 220.7 355.3 192 320 192C284.7 192 256 220.7 256 256C256 291.3 284.7
                         320 320 320z" />
                     </svg>
-                    <p>68 Nguyễn Huệ, Phường Bến Nghé,  Quận 1, TP HCM</p>
+                    <p>68 Nguyễn Huệ, Phường Sài Gòn, TP HCM</p>
                 </div>
                 <div class="footer_info--hotline">
                     <svg class="footer_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
@@ -324,7 +327,7 @@
                         368.4 418.2 373.2 406.8 387.1L368.2 434.3C297.9 399.4 241.3 341 208.8 269.3L253 233.3C266.9 222 271.6 202.9 264.8
                         186.3L224.2 89z" />
                     </svg>
-                    <p>0359.566.363</p>
+                    <p>08.1998.1900</p>
                 </div>
                 <div class="footer_email">
                     <svg class="footer_svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
@@ -335,7 +338,7 @@
                         256.3zM112 189.4C112 182 118 176 125.4 176L514.6 176C522 176 528 182 528 189.4C528 193.6 526 197.6 522.7
                         200.1L344.2 335.5C329.9 346.3 310.1 346.3 295.8 335.5L117.3 200.1C114 197.6 112 193.6 112 189.4z" />
                     </svg>
-                    <p>marketing@hoaxinh.vn</p>
+                    <p>infor@hoaxinhgroup.vn</p>
                 </div>
             </div>
             <div class="footer_time line_height">
@@ -523,7 +526,12 @@
                     <h2 class="popup_product--price">1,500,000</h2>
                     <div class="popup_product--summary"></div>
                     <div class="popup_productAction">
-                        <input type="number" name="qty" id="qty">
+                        <div class="qty-wrapperProduct">
+                            <button type="button" class="qty-btn" id="popup-qty-minus">-</button>
+                            <input type="number" name="qty" id="qty" value="1" min="1" class="cart_qtyProduct"> 
+                            <button type="button" class="qty-btn" id="popup-qty-plus">+</button>
+                        </div>
+
                         <button class="popup_product--buyBtn no-btn" type="button">Đặt mua</button>
                         <button class="popup_product--addCartBtn">Thêm vào giỏ hàng</button>
                     </div>
@@ -568,7 +576,7 @@
 
             <div class="main_cart--detail">
                 <div>Sản phẩm</div>
-                <div>Thành tiền</div>
+                <span>Thành tiền</span>
             </div>
             <div class="main_cart--empty">
                 <svg class="main_cart--logo" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -580,30 +588,7 @@
                 <h3 class="main_cart--text">Giỏ hàng trống</h3>
             </div>
 
-            <div class="main_cart--wrap">
-                <!-- <div class="main_cart--item">
-                    <div class="main_cart--itemBtnRemove">✕</div>
-                    <input type="checkbox" name="" id="">
-                    <img src="assets/img/mp_kemduongam.png" alt="" class="main_cart--itemImg">
-
-                    <div class="main_cart--itemContent">
-                        <h5 class="main_cart--itemName">Máy lọc không khí</h5>
-
-                        <div class="main_cart--itemQty">
-                            <div>Số lượng:</div>
-                            <input type="number" name="" id="" min="0" value="1">
-                        </div>
-
-                        <div class="main_cart--itemPrice">
-                            <div>Giá: </div>
-                            <div>200,000,000đ</div>
-                        </div>
-                    </div>
-
-                    <div class="main_cart--itemTotal">200,000,000đ</div>
-                </div> -->
-
-            </div>
+            <div class="main_cart--wrap"></div>
         </div>
 
         <div class="end_cart">

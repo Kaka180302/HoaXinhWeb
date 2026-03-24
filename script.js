@@ -1,6 +1,5 @@
 window.addEventListener("DOMContentLoaded", () => {
-   
-  console.log("SCRIPT START")
+  
   // *******************Header********************
 const header = document.querySelector('.header_info');
 
@@ -65,7 +64,7 @@ setInterval(nextSlide,3000)
 
 const orderPopup = document.getElementById("order")
 const closeBtn = document.querySelector(".order__close")
-const productBtnSelector = ".product_buyBtn, .product_hoverBtn, .product_buyBtn--detail, .btn_buyCart"
+const productBtnSelector = ".product_buyBtn, .product_hoverBtn, .product_buyBtn--detail"
 
 const productBox = document.getElementById("orderProducts")
 const addProductBtn = document.getElementById("addProduct")
@@ -400,7 +399,7 @@ successOk.onclick = ()=>{
 
 // ******************Form_Submit*****************
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbz2_pxbqLLY2XzMKKNslb8q9RrEhYeabuaq0VF5RrVihz9Ty7Dmj4Z-gvUncNOBWWNm/exec"
+const scriptURL = "https://script.google.com/macros/s/AKfycbzQp_u8op-b0uJMOjFS-yq2LH46j_eoI-M4JeTRjqrDkG_7buRqJte98WIZjPXC5fuPug/exec"
 const form = document.getElementById("orderForm")
 
 form.addEventListener("submit", function(e){
@@ -499,7 +498,14 @@ const prevBtn_product = document.querySelector(".product_button--prev");
 let index_product = 0;
 let maxIndex = 0;
 
-let visibleItems = 3; 
+function getVisibleItems() {
+    // Nếu màn hình nhỏ hơn hoặc bằng 768px (điện thoại/tablet nhỏ) thì trả về 2
+    if (window.innerWidth <= 768) {
+        return 2;
+    }
+    // Còn lại (PC) thì trả về 3
+    return 3; 
+}
 
 function getProductItems() {
     return Array.from(document.querySelectorAll(".product_listItem"));
@@ -546,7 +552,7 @@ window.refreshProductSlider = function () {
 
     const totalItems = items.length;
 
-    maxIndex = Math.max(0, totalItems - visibleItems);
+    maxIndex = Math.max(0, totalItems - getVisibleItems());
 
     index_product = 0;
     moveSlider();
@@ -639,6 +645,18 @@ prevBtn_product.addEventListener("click", () => {
     }
 });
 
+window.addEventListener("resize", () => {
+    const visibleProducts = getVisibleProductItems();
+    maxIndex = Math.max(0, visibleProducts.length - getVisibleItems());
+    
+    // Ép index_product lùi lại nếu màn hình to ra làm maxIndex bị giảm
+    if (index_product > maxIndex) {
+        index_product = Math.max(0, maxIndex);
+        moveSlider();
+    }
+    updateButtons();
+});
+
 
 // ************* FILTER FUNCTION (CHUNG) *************
 function filterProducts(filter) {
@@ -654,7 +672,7 @@ function filterProducts(filter) {
     });
 
     const visibleProducts = getVisibleProductItems();
-    maxIndex = Math.max(0, visibleProducts.length - visibleItems);
+    maxIndex = Math.max(0, visibleProducts.length - getVisibleItems());
 
     updateButtons();
 }
@@ -662,7 +680,7 @@ function filterProducts(filter) {
 function refreshProductSlider() {
     index_product = 0;
     track.style.transform = `translateX(0px)`;
-    maxIndex = Math.max(0, getVisibleProductItems().length - visibleItems);
+    maxIndex = Math.max(0, getVisibleProductItems().length - getVisibleItems());
     updateButtons();
 }
 
@@ -708,7 +726,7 @@ window.filterProducts = filterProducts;
 window.refreshProductSlider = refreshProductSlider;
 refreshProductSlider();
 
-// Cart
+// ************************Cart*************************************
 
 const cart = document.querySelector(".cart")
 const openBtn_cart = document.querySelectorAll(".icon_cartWrap")
@@ -762,7 +780,5 @@ orbits.forEach((item, index) => {
     item.style.animation = `spinOrbit ${duration}s linear infinite`;
 });
 
-
-console.log("SCRIPT END")
 });
 
