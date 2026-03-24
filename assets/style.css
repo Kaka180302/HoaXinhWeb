@@ -9,8 +9,6 @@
     --hx-gold-2: #B38954;
     --hx-gold-3: #DDAC6C;
     --hx-gold-4: #F9C682;
-    
-
 }
 
 .display_block{
@@ -53,6 +51,10 @@ html, body{
 img{
     max-width:100%;
     height:auto;
+}
+
+.icon_platfom{
+    width: 60%;
 }
 /* Scroll */
 
