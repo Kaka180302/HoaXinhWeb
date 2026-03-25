@@ -430,6 +430,8 @@
         if (typeof window.refreshOrderProductSelects === "function") {
             window.refreshOrderProductSelects();
         }
+
+        syncCartWithGoogleSheet();
     }
 
     if (!sheetId) {
@@ -480,6 +482,40 @@
     function loadCart() {
         const data = localStorage.getItem("cart");
         carts = data ? JSON.parse(data) : [];
+    }
+
+    function syncCartWithGoogleSheet() {
+        if (!carts.length || !window.googleSheetCatalog.length) return;
+
+        let hasChanged = false;
+
+        carts.forEach(cartItem => {
+            // Tìm sản phẩm tương ứng trên Google Sheet (dựa vào tên)
+            const liveProduct = window.googleSheetCatalog.find(p => p.name === cartItem.name);
+
+            if (liveProduct) {
+                const livePrice = Number(liveProduct.price);
+                
+                // Nếu giá trên LocalStorage khác giá trên Sheet thì cập nhật lại
+                if (cartItem.price !== livePrice) {
+                    cartItem.price = livePrice;
+                    hasChanged = true;
+                }
+                
+                // Cập nhật luôn hình ảnh phòng trường hợp ông đổi link ảnh trên Sheet
+                if (cartItem.image !== liveProduct.image) {
+                    cartItem.image = liveProduct.image;
+                    hasChanged = true;
+                }
+            }
+        });
+
+        // Nếu phát hiện có sự thay đổi giá/hình thì lưu đè lại LocalStorage và vẽ lại giỏ hàng
+        if (hasChanged) {
+            saveCart();
+            renderCart();
+            updateCartTotal();
+        }
     }
 
     const cartCountEl = document.querySelectorAll(".cart_count");

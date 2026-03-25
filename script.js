@@ -52,7 +52,7 @@ function nextSlide(){
       index = 1
       slides.style.transform = "translateX(-100%)"
       updateDot(1)
-    },600)
+    },5000)
 
   }
 
