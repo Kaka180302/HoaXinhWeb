@@ -1854,6 +1854,10 @@ input{
         width: 100%;
     }
 
+    .product_track{
+        gap: 16px;
+    }
+
     .product_list{
         flex-wrap:wrap;
     }
@@ -1948,6 +1952,12 @@ input{
     right: 0;
 }
 
+.product_nav{
+    gap: 8px;
+}
+.product_navList{
+    gap: 8px;
+}
 .cart.active_cart{
     width: 100%;
 }
