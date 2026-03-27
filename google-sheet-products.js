@@ -262,29 +262,38 @@
         }
 
         popupProduct.style.display = "none";
+
+        const popupAction = document.querySelector('.popup_productAction');
+        const actionDummy = document.querySelector('.action-dummy-anchor');
+        if(popupAction) {
+            popupAction.classList.remove('is-sticky');
+            popupAction.style.width = '';
+            popupAction.style.left = '';
+            popupAction.style.bottom = '';
+        }
+        if(actionDummy) actionDummy.style.height = '0px';
     }
 
+// XỬ LÝ CLICK MỞ POPUP CHI TIẾT SẢN PHẨM (PHIÊN BẢN CHẮC CÚ 100%)
     function bindProductDetailEvents() {
-        productTrack.querySelectorAll(".product_detailTrigger").forEach((button) => {
-            if (button.dataset.detailBound === "true") {
-                return;
-            }
-
-            button.dataset.detailBound = "true";
-            button.addEventListener("click", () => {
-                openProductDetail(Number(button.dataset.productIndex));
-            });
-        });
-
-        productTrack.querySelectorAll(".product_detailImage").forEach((image) => {
-            if (image.dataset.detailBound === "true") {
-                return;
-            }
-
-            image.dataset.detailBound = "true";
-            image.addEventListener("click", () => {
-                openProductDetail(Number(image.dataset.productIndex));
-            });
+        // Tìm tất cả các ảnh và tiêu đề có thể click
+        const triggers = document.querySelectorAll(".product_detailTrigger, .product_detailImage");
+        
+        triggers.forEach(trigger => {
+            // Dùng onclick trực tiếp đè lên mọi thứ
+            trigger.onclick = function(e) {
+                e.stopPropagation(); // Ngăn không cho thằng Slider cướp click
+                
+                const index = this.getAttribute("data-product-index");
+                console.log("Đã click vô sản phẩm số:", index); // In ra để check
+                
+                if (index !== null) {
+                    openProductDetail(Number(index));
+                    console.log("Đã gọi lệnh mở Popup!");
+                } else {
+                    console.error("Lỗi: Không tìm thấy data-product-index");
+                }
+            };
         });
     }
 
@@ -314,7 +323,7 @@
         popupProductBuyBtn.addEventListener("click", () => {
             const qty = Math.max(1, Number(popupProductQty?.value || 1));
 
-            closeProductDetail();
+            // closeProductDetail();
 
             if (typeof window.openOrder === "function") {
                 window.openOrder();
@@ -353,12 +362,48 @@
         }).filter((item) => Object.values(item).some(Boolean));
     }
 
+    // ggsheet.js
+
+    // =========================================
+    // JS CHO LOAD SẢN PHẨM DẠNG SLICE & GRID
+    // =========================================
+
+    // Cài đặt số lượng load
+    const CONFIG_LOAD = {
+        pc: {
+            initial: 20, // Load lần đầu 20 cái (5 hàng x 4 cột)
+            slice: 12 // Mỗi lần Xem thêm load 12 cái (3 hàng x 4 cột)
+        },
+        tablet: {
+            initial: 18, // Load lần đầu 18 cái (6 hàng x 3 cột)
+            slice: 9 // Mỗi lần Xem thêm load 9 cái (3 hàng x 3 cột)
+        },
+        mobile: {
+            initial: 16, // Load lần đầu 16 cái (8 hàng x 2 cột)
+            slice: 10 // Mỗi lần Xem thêm load 10 cái (5 hàng x 2 cột)
+        }
+    }
+
+    // Biến trạng thái: lưu kho sản phẩm, vị trí hiện tại và cái kho sản phẩm đã lọc
+    window.allFilteredProducts = []; 
+    let currentSliceIndex = 0; 
+
+    // Hàm lấy cấu hình load theo thiết bị
+    function getLoadConfig() {
+        if (window.innerWidth > 1024) return CONFIG_LOAD.pc;
+        if (window.innerWidth > 768) return CONFIG_LOAD.tablet;
+        return CONFIG_LOAD.mobile;
+    }
+
+    // --- (HÀM CŨ) renderProducts: Bây giờ chỉ làm nhiệm vụ CẤP PHÁT KHO SẢN PHẨM và BẮT ĐẦU LOAD SLICE ĐẦU TIÊN ---
+    // --- HÀM RENDER SẢN PHẨM ĐÃ ĐƯỢC DỌN DẸP SẠCH SẼ TÀN DƯ SLIDER ---
     function renderProducts(products) {
         if (!products.length) {
-            productTrack.innerHTML = '<p class="google-sheet-status">Google Sheet chua co du lieu san pham.</p>';
+            productTrack.innerHTML = '<p class="google-sheet-status">Google Sheet chưa có dữ liệu sản phẩm.</p>';
             return;
         }
 
+        // Cấp phát kho catalog sản phẩm cho Web
         window.googleSheetCatalog = products.map((product) => ({
             name: getFieldValue(product, ["ten", "tensanpham", "sanpham", "name", "productname"]),
             image: getFieldValue(product, ["hinh", "hinhanh", "image", "img", "anh", "photo"]),
@@ -373,66 +418,148 @@
             price: getFieldValue(product, ["gia", "price", "giaban"])
         })).filter((product) => product.name);
 
-        const html = products.map((product, index) => {
-            const name = getFieldValue(product, ["ten", "tensanpham", "sanpham", "name", "productname"]);
-            const image = getFieldValue(product, ["hinh", "hinhanh", "image", "img", "anh", "photo"]);
-            const price = getFieldValue(product, ["gia", "price", "giaban"]);
-            const category = getFieldValue(product, ["category", "danhmuc", "loai"]);
-            const categoryKey = normalizeCategory(category);
+        // Bắt đầu logic chia Slice
+        window.allFilteredProducts = window.googleSheetCatalog;
+        productTrack.innerHTML = '';
+        currentSliceIndex = 0; 
 
-            return `
-                <div class="product_listItem" data-category="${escapeHtml(categoryKey)}">
-                    <div class="product_imgWrap">
-                        <img
-                            src="${escapeHtml(image || "https://placehold.co/600x400?text=No+Image")}"
-                            alt="${escapeHtml(name || "San pham")}"
-                            class="product_listItem--img product_detailImage"
-                            data-product-index="${index}"
-                        >
-                    </div>
-                    <h3
-                        class="product_listItem--title product_detailTrigger"
-                        data-product-index="${index}"
-                    >${escapeHtml(name || "Chua co ten san pham")}</h3>
-                    <div class="product_listItem--cost">${escapeHtml(formatPrice(price))}</div>
-                    <button
-                        type="button"
-                        class="product_hoverBtn"
-                        data-name="${escapeHtml(name || "")}"
-                        data-price="${escapeHtml(price || "")}"
-                    >
-                        <svg class="icon_addCart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                            <path d="M24 48C10.7 48 0 58.7 0 72C0 85.3 10.7 96 24 96L69.3 96C73.2 96 76.5 98.8 77.2 102.6L129.3 388.9C135.5 423.1 165.3 448 200.1 448L456 448C469.3 448 480 437.3 480 424C480 410.7 469.3 400 456 400L200.1 400C188.5 400 178.6 391.7 176.5 380.3L171.4 352L475 352C505.8 352 532.2 330.1 537.9 299.8L568.9 133.9C572.6 114.2 557.5 96 537.4 96L124.7 96L124.3 94C119.5 67.4 96.3 48 69.2 48L24 48zM208 576C234.5 576 256 554.5 256 528C256 501.5 234.5 480 208 480C181.5 480 160 501.5 160 528C160 554.5 181.5 576 208 576zM432 576C458.5 576 480 554.5 480 528C480 501.5 458.5 480 432 480C405.5 480 384 501.5 384 528C384 554.5 405.5 576 432 576z" />
-                        </svg>
-                    </button>
-                </div>
-            `;
-        }).join("");
+        // Load slice đầu tiên ra
+        renderProductsGridSlice();
 
-        productTrack.innerHTML = html;
-
-        if (typeof window.refreshProductSlider === "function") {
-            window.refreshProductSlider();
-        }
-
-        if (typeof window.filterProducts === "function") {
-            const activeBtn = document.querySelector(".product_nav--item.active");
-            const activeFilter = activeBtn ? activeBtn.getAttribute("data-filter") : "all";
-            window.filterProducts(activeFilter);
-        }
-
-        if (typeof window.bindDynamicProductButtons === "function") {
-            window.bindDynamicProductButtons();
-        }
-
+        // Chỉ giữ lại mấy hàm cần thiết cho chức năng
         bindProductDetailEvents();
-
+        bindListAddCartEvents();
+        
         if (typeof window.refreshOrderProductSelects === "function") {
             window.refreshOrderProductSelects();
         }
 
         syncCartWithGoogleSheet();
     }
+
+
+    // --- (HÀM MỚI): CHỊU TRÁCH NHIỆM CHÍNH CHO VIỆC LOAD SLICE & GRID ---
+    const btnLoadMore = document.getElementById("load-more-btn");
+    
+    function renderProductsGridSlice() {
+        if (!window.allFilteredProducts.length) return;
+
+        // 1. Lấy cấu hình cho thiết bị hiện tại
+        const config = getLoadConfig();
+
+        // 2. Xác định vị trí kết thúc miếng slice
+        let sliceSize = currentSliceIndex === 0 ? config.initial : config.slice;
+        let endIndex = Math.min(window.allFilteredProducts.length, currentSliceIndex + sliceSize);
+        
+        // 3. Cắt miếng slice từ kho
+        let currentSliceProducts = window.allFilteredProducts.slice(currentSliceIndex, endIndex);
+
+        // 4. Máp ra HTML cho từng thẻ sản phẩm trong slice
+        const html = currentSliceProducts.map((product, index) => {
+            // Xác định index thực tế của sản phẩm trong catalog (để mở popup detail)
+            const realCatalogIndex = window.googleSheetCatalog.findIndex(p => p.name === product.name);
+
+            return `
+                <div class="product_listItem" data-category="${escapeHtml(product.categoryKey)}" style="opacity: 0; transform: translateY(20px);">
+                    <div class="product_imgWrap">
+                        <img
+                            src="${escapeHtml(product.image || "https://placehold.co/600x400?text=No+Image")}"
+                            alt="${escapeHtml(product.name || "San pham")}"
+                            class="product_listItem--img product_detailImage"
+                            data-product-index="${realCatalogIndex}"
+                        >
+                    </div>
+                    <h3
+                        class="product_listItem--title product_detailTrigger"
+                        data-product-index="${realCatalogIndex}"
+                    >${escapeHtml(product.name || "Chua co ten san pham")}</h3>
+                    <div class="product_listItem--cost">${escapeHtml(formatPrice(product.price))}</div>
+                    
+                        <button
+                        type="button"
+                        class="product_hoverBtn"
+                        data-name="${escapeHtml(product.name || "")}"
+                        data-price="${escapeHtml(product.price || "")}"
+                        >
+                            <svg class="icon_addCart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                                <path d="M24 48C10.7 48 0 58.7 0 72C0 85.3 10.7 96 24 96L69.3 96C73.2 96 76.5 98.8 77.2 102.6L129.3 388.9C135.5 423.1 165.3 448 200.1 448L456 448C469.3 448 480 437.3 480 424C480 410.7 469.3 400 456 400L200.1 400C188.5 400 178.6 391.7 176.5 380.3L171.4 352L475 352C505.8 352 532.2 330.1 537.9 299.8L568.9 133.9C572.6 114.2 557.5 96 537.4 96L124.7 96L124.3 94C119.5 67.4 96.3 48 69.2 48L24 48zM208 576C234.5 576 256 554.5 256 528C256 501.5 234.5 480 208 480C181.5 480 160 501.5 160 528C160 554.5 181.5 576 208 576zM432 576C458.5 576 480 554.5 480 528C480 501.5 458.5 480 432 480C405.5 480 384 501.5 384 528C384 554.5 405.5 576 432 576z" />
+                            </svg>
+                        </button>
+
+                        
+                    
+                </div>
+            `;
+        }).join("");
+
+        // 5. Append (thêm tiếp) HTML vào Grid, thay vì thay thế toàn bộ
+        if (currentSliceIndex === 0) {
+            productTrack.innerHTML = html;
+        } else {
+            productTrack.insertAdjacentHTML('beforeend', html);
+        }
+
+        // 6. Hiệu ứng fade in (hiện dần) cho sản phẩm mới
+        requestAnimationFrame(() => {
+            productTrack.querySelectorAll(".product_listItem").forEach(item => {
+                item.style.opacity = '1';
+                item.style.transform = 'translateY(0)';
+            });
+        });
+
+        // 7. Cập nhật vị trí bắt đầu cho miếng slice tiếp theo
+        currentSliceIndex = endIndex;
+
+        // 8. Ẩn/Hiện nút "Xem thêm" dựa trên số lượng sản phẩm còn lại
+        if (btnLoadMore) {
+            btnLoadMore.style.display = currentSliceIndex < window.allFilteredProducts.length ? "inline-block" : "none";
+        }
+
+        // 9. (Giữ nguyên logic cũ): Gắn lại các sự kiện detail, add cart cho các thẻ mới render
+        bindProductDetailEvents();
+        bindListAddCartEvents();
+    }
+
+
+    // =========================================
+    // XỬ LÝ FILTER & NÚT "XEM THÊM"
+    // =========================================
+
+    // A. XỬ LÝ NÚT FILTER CATEGORY
+    const filterButtons = document.querySelectorAll(".product_nav--item");
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            // 1. (Giữ nguyên cũ): Đổi active button
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+
+            // 2. Lấy tên Category để filter
+            const filterValue = btn.getAttribute("data-filter");
+
+            // 3. Reset lại cái Grid và vị trí slice về số 0
+            productTrack.innerHTML = '';
+            currentSliceIndex = 0; 
+            
+            // 4. CHIA SLICE KHI FILTER NẰM Ở ĐÂY NÈ: 
+            // - Dò kho full (window.googleSheetCatalog) để tìm sản phẩm Category đó.
+            window.allFilteredProducts = window.googleSheetCatalog.filter(p => {
+                if(filterValue === "all") return true; // Lấy hết
+                return normalizeCategory(p.categoryKey) === normalizeCategory(filterValue); // So sánh category key
+            });
+
+            // - Load miếng đầu tiên của kho Filter đó ra
+            renderProductsGridSlice();
+        });
+    });
+
+    // B. XỬ LÝ NÚT "XEM THÊM"
+    if(btnLoadMore){
+        btnLoadMore.addEventListener("click", () => {
+            // Khi bấm chỉ đơn giản là gọi hàm load miếng slice tiếp theo thôi haha
+            renderProductsGridSlice();
+        });
+    }
+
 
     if (!sheetId) {
         productTrack.innerHTML = '<p class="google-sheet-status">Thieu data-sheet-id de tai du lieu Google Sheet.</p>';
@@ -614,28 +741,105 @@
         }, 3000);
     }
 
-    const addCartBtn = document.querySelector(".popup_product--addCartBtn");
+   // HÀM XỬ LÝ ẢNH BAY VÀO GIỎ HÀNG
+    function flyToCart(imgElement) {
+        // Tìm TẤT CẢ các giỏ hàng đang có trong HTML
+        const cartIcons = Array.from(document.querySelectorAll(".icon_cartWrap"));
+        
+        // Tuyệt chiêu: Lọc ra cái giỏ hàng ĐANG HIỂN THỊ trên màn hình (chiều rộng > 0)
+        const activeCartIcon = cartIcons.find(icon => icon.offsetWidth > 0);
 
-    if (addCartBtn) {
-        addCartBtn.addEventListener("click", () => {
+        if (!imgElement || !activeCartIcon) return;
 
+        // 1. Lấy tọa độ
+        const imgRect = imgElement.getBoundingClientRect();
+        const cartRect = activeCartIcon.getBoundingClientRect();
+
+        // 2. Tạo ảnh clone
+        const flyingImg = document.createElement("img");
+        flyingImg.src = imgElement.src;
+        flyingImg.classList.add("flying-img");
+
+        // 3. Đặt tọa độ đè lên ảnh gốc
+        flyingImg.style.left = `${imgRect.left}px`;
+        flyingImg.style.top = `${imgRect.top}px`;
+        flyingImg.style.width = `${imgRect.width}px`;
+        flyingImg.style.height = `${imgRect.height}px`;
+
+        document.body.appendChild(flyingImg);
+
+        // 4. Kích hoạt bay về giỏ hàng đang active
+        setTimeout(() => {
+            flyingImg.style.left = `${cartRect.left + cartRect.width / 2 - 10}px`; 
+            flyingImg.style.top = `${cartRect.top + cartRect.height / 2 - 10}px`;
+            flyingImg.style.width = "20px"; 
+            flyingImg.style.height = "20px";
+            flyingImg.style.opacity = "0.2"; 
+        }, 10);
+
+        // 5. Dọn rác & rung giỏ hàng
+        setTimeout(() => {
+            flyingImg.remove();
+            activeCartIcon.classList.add("shake-cart");
+            setTimeout(() => activeCartIcon.classList.remove("shake-cart"), 300);
+        }, 800);
+    }
+
+
+    // HÀM DÙNG CHUNG ĐỂ THÊM VÀO GIỎ HÀNG
+    function addItemToCart(name, price, image, qty) {
+        const exist = carts.find(item => item.name === name);
+
+        if (exist) {
+            exist.qty += qty;
+        } else {
+            carts.push({ name, price, image, qty });
+        }
+
+        saveCart();
+        renderCart();
+        showAddCartSuccess();
+    }
+
+    // Xử lý click nút Thêm vào giỏ hàng Ở TRONG POPUP CHI TIẾT
+    const popupAddCartBtn = document.querySelector(".popup_product--addCartBtn"); // Nút ở html gốc của popup
+    if (popupAddCartBtn) {
+        popupAddCartBtn.addEventListener("click", () => {
             const name = popupProductTitle.textContent;
             const price = Number(popupProductBuyBtn.dataset.price || 0);
             const image = popupProductImage.src;
             const qty = Number(popupProductQty.value || 1);
 
-            const exist = carts.find(item => item.name === name);
+            flyToCart(popupProductImage);
 
-            if (exist) {
-                exist.qty += qty;
-            } else {
-                carts.push({ name, price, image, qty });
+            addItemToCart(name, price, image, qty);
+        });
+    }
+
+// XỬ LÝ CLICK NÚT THÊM VÀO GIỎ HÀNG Ở NGOÀI DANH SÁCH
+    function bindListAddCartEvents() {
+        // Gom CẢ 2 NÚT: nút chữ (.list_addCartBtn) và nút Icon tròn (.product_hoverBtn)
+        productTrack.querySelectorAll(".list_addCartBtn, .product_hoverBtn").forEach(btn => {
+            if (btn.dataset.cartBound === "true") return; 
+            
+            btn.dataset.cartBound = "true";
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation(); 
+
+                const name = btn.dataset.name;
+                const price = Number(btn.dataset.price);
+                const qty = 1; 
+
+                // Tìm thẻ cha để moi cái link ảnh ra (đề phòng nút Icon không lưu link ảnh)
+                const productCard = btn.closest(".product_listItem");
+                const imgElement = productCard ? productCard.querySelector(".product_listItem--img") : null;
+                const image = btn.dataset.image || (imgElement ? imgElement.src : "");
                 
-            }
-
-            saveCart();
-            renderCart();
-            showAddCartSuccess();
+                // Bắt đầu cho ảnh bay
+                if (imgElement) flyToCart(imgElement);
+                
+                addItemToCart(name, price, image, qty);
+            });
         });
     }
 
@@ -805,5 +1009,45 @@ if (popupQtyMinus && popupQtyPlus && popupQtyInput) {
         }
     });
 }
+
+    // =========================================
+    // XỬ LÝ THANH MUA HÀNG BÁM ĐÁY (ALL DEVICES)
+    // =========================================
+    const popupProductWrapObj = document.querySelector('.popup_productWrap');
+    const popupActionObj = document.querySelector('.popup_productAction');
+
+    let actionDummyObj = document.querySelector('.action-dummy-anchor');
+    if (!actionDummyObj && popupActionObj) {
+        actionDummyObj = document.createElement('div');
+        actionDummyObj.className = 'action-dummy-anchor';
+        popupActionObj.parentNode.insertBefore(actionDummyObj, popupActionObj);
+    }
+
+    if (popupProductWrapObj && popupActionObj && actionDummyObj) {
+        popupProductWrapObj.addEventListener('scroll', () => {
+            // Đã tháo xích window.innerWidth <= 768, giờ chạy trên mọi mặt trận
+            const wrapRect = popupProductWrapObj.getBoundingClientRect();
+            const dummyRect = actionDummyObj.getBoundingClientRect();
+
+            if (dummyRect.top < wrapRect.top) {
+                popupActionObj.classList.add('is-sticky');
+                actionDummyObj.style.height = popupActionObj.offsetHeight + 'px'; 
+                
+                // BÍ KÍP ĐÂY: Ép chiều rộng và lề trái khớp 100% với cái Popup
+                popupActionObj.style.width = wrapRect.width + 'px';
+                popupActionObj.style.left = wrapRect.left + 'px';
+                // Ép bám sát đúng cái mép đáy của Popup (vì PC popup không chạm đáy màn hình)
+                popupActionObj.style.bottom = (window.innerHeight - wrapRect.bottom) + 'px';
+            } else {
+                popupActionObj.classList.remove('is-sticky');
+                actionDummyObj.style.height = '0px'; 
+                
+                // Trả lại tự do cho CSS
+                popupActionObj.style.width = '';
+                popupActionObj.style.left = '';
+                popupActionObj.style.bottom = '';
+            }
+        });
+    }
     
 })();

@@ -26,11 +26,20 @@ function updateActiveFlag() {
 }
 
 // Gắn sự kiện click cho các lá cờ
-document.addEventListener('click', (e) => {
-    const btn = e.target.closest('.lang-flag');
-    if (!btn) return;
-    e.preventDefault();
-    setLanguage(btn.dataset.lang);
+// Gắn sự kiện click TRỰC TIẾP cho từng lá cờ
+document.querySelectorAll('.lang-flag').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        
+        // Gọi hàm đổi ngôn ngữ
+        setLanguage(btn.dataset.lang);
+
+        // (Tùy chọn) Bấm chọn ngôn ngữ xong thì tự động thu cụm cờ lại cho gọn
+        const langWrap = btn.closest('.lang-flags_mobile');
+        if (langWrap) {
+            langWrap.classList.remove('active');
+        }
+    });
 });
 
 // Đồng bộ UI khi tải trang xong

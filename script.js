@@ -52,7 +52,7 @@ function nextSlide(){
       index = 1
       slides.style.transform = "translateX(-100%)"
       updateDot(1)
-    },5000)
+    },600)
 
   }
 
@@ -489,200 +489,22 @@ document.addEventListener("click", (e) => {
 
 })
 
-// ************ SLIDER *************
+// ************* CLICK SUBMENU (TÍCH HỢP VỚI LAYOUT GRID MỚI) *************
+const menuItemss = document.querySelectorAll(".menu_product--item");
 
-const track = document.querySelector(".product_track");
-const nextBtn_product = document.querySelector(".product_button--next");
-const prevBtn_product = document.querySelector(".product_button--prev");
+menuItemss.forEach(menu => {
+    menu.addEventListener("click", () => {
+        const filter = menu.getAttribute("data-filter");
 
-let index_product = 0;
-let maxIndex = 0;
-
-function getVisibleItems() {
-    // Nếu màn hình nhỏ hơn hoặc bằng 768px (điện thoại/tablet nhỏ) thì trả về 2
-    if (window.innerWidth <= 768) {
-        return 2;
-    }
-    // Còn lại (PC) thì trả về 3
-    return 3; 
-}
-
-function getProductItems() {
-    return Array.from(document.querySelectorAll(".product_listItem"));
-}
-
-function getVisibleProductItems() {
-    return getProductItems().filter((item) => item.style.display !== "none");
-}
-
-
-function getItemWidth() {
-    const firstVisibleItem = getVisibleProductItems()[0] || getProductItems()[0];
-
-    if (!firstVisibleItem) return 0;
-
-    const style = window.getComputedStyle(track);
-    const gap = parseInt(style.columnGap || style.gap || 0);
-
-    return firstVisibleItem.offsetWidth + gap;
-}
-
-function updateButtons() {
-    if (!prevBtn_product || !nextBtn_product) return;
-
-    prevBtn_product.classList.toggle("disabled", index_product === 0);
-    nextBtn_product.classList.toggle("disabled", index_product >= maxIndex);
-}
-
-
-function moveSlider() {
-    track.style.transform = `translateX(-${index_product * getItemWidth()}px)`;
-}
-
-window.refreshProductSlider = function () {
-    const items = getVisibleProductItems();
-
-    if (!items.length) {
-        maxIndex = 0;
-        index_product = 0;
-        moveSlider();
-        updateButtons();
-        return;
-    }
-
-    const totalItems = items.length;
-
-    maxIndex = Math.max(0, totalItems - getVisibleItems());
-
-    index_product = 0;
-    moveSlider();
-
-    updateButtons();
-};
-
-if (nextBtn_product) {
-    nextBtn_product.addEventListener("click", () => {
-        if (index_product < maxIndex) {
-            index_product++;
-            moveSlider();
-            updateButtons();
+        // Tìm cái nút Danh mục chính (Pill) tương ứng và "chọt" (bấm giả) vào nó
+        const targetNavBtn = document.querySelector(`.product_nav--item[data-filter="${filter}"]`);
+        
+        if(targetNavBtn) {
+            targetNavBtn.click(); // Chuyển lệnh này cho file ggsheet.js tự xử lý
         }
     });
-}
-
-if (prevBtn_product) {
-    prevBtn_product.addEventListener("click", () => {
-        if (index_product > 0) {
-            index_product--;
-            moveSlider();
-            updateButtons();
-        }
-    });
-}
-
-window.addEventListener("load", () => {
-    window.refreshProductSlider();
 });
 
-let startX = 0;
-let currentX = 0;
-let isDragging = false;
-
-track.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-    isDragging = true;
-});
-
-track.addEventListener("touchmove", (e) => {
-    if (!isDragging) return;
-
-    currentX = e.touches[0].clientX;
-    const diff = currentX - startX;
-
-    
-    track.style.transform = `translateX(${-index_product * getItemWidth() + diff}px)`;
-});
-
-track.addEventListener("touchend", () => {
-    if (!isDragging) return;
-
-    const diff = currentX - startX;
-
-    const threshold = 50;
-
-    if (diff < -threshold && index_product < maxIndex) {
-        
-        index_product++;
-    } else if (diff > threshold && index_product > 0) {
-        
-        index_product--;
-    }
-
-    moveSlider();
-    updateButtons();
-
-    isDragging = false;
-});
-
-function updateButtons() {
-    prevBtn_product.classList.toggle("disabled", index_product === 0);
-    nextBtn_product.classList.toggle("disabled", index_product >= maxIndex);
-}
-
-nextBtn_product.addEventListener("click", () => {
-    if (index_product < maxIndex) {
-        index_product++;
-        track.style.transform = `translateX(-${index_product * getItemWidth()}px)`;
-        updateButtons();
-    }
-});
-
-prevBtn_product.addEventListener("click", () => {
-    if (index_product > 0) {
-        index_product--;
-        track.style.transform = `translateX(-${index_product * getItemWidth()}px)`;
-        updateButtons();
-    }
-});
-
-window.addEventListener("resize", () => {
-    const visibleProducts = getVisibleProductItems();
-    maxIndex = Math.max(0, visibleProducts.length - getVisibleItems());
-    
-    // Ép index_product lùi lại nếu màn hình to ra làm maxIndex bị giảm
-    if (index_product > maxIndex) {
-        index_product = Math.max(0, maxIndex);
-        moveSlider();
-    }
-    updateButtons();
-});
-
-
-// ************* FILTER FUNCTION (CHUNG) *************
-function filterProducts(filter) {
-
-    index_product = 0;
-    track.style.transform = `translateX(0px)`;
-
-    getProductItems().forEach(item => {
-        const category = item.getAttribute("data-category");
-
-        item.style.display =
-            (filter === "all" || filter === category) ? "block" : "none";
-    });
-
-    const visibleProducts = getVisibleProductItems();
-    maxIndex = Math.max(0, visibleProducts.length - getVisibleItems());
-
-    updateButtons();
-}
-
-function refreshProductSlider() {
-    index_product = 0;
-    track.style.transform = `translateX(0px)`;
-    maxIndex = Math.max(0, getVisibleProductItems().length - getVisibleItems());
-    updateButtons();
-}
 
 
 // ************* CLICK TAB (PRODUCT NAV) *************
@@ -721,10 +543,6 @@ menuItems.forEach(menu => {
         filterProducts(filter);
     });
 });
-
-window.filterProducts = filterProducts;
-window.refreshProductSlider = refreshProductSlider;
-refreshProductSlider();
 
 // ************************Cart*************************************
 
@@ -780,5 +598,31 @@ orbits.forEach((item, index) => {
     item.style.animation = `spinOrbit ${duration}s linear infinite`;
 });
 
+// **********lang_mobile********************
+// ================= XỬ LÝ NÚT NGÔN NGỮ BUNG RA (MOBILE) =================
+// ================= XỬ LÝ NÚT NGÔN NGỮ BUNG RA (MOBILE) =================
+const langFlagsWrap = document.querySelector(".lang-flags_mobile");
+
+if (langFlagsWrap) {
+    langFlagsWrap.addEventListener("click", function (e) {
+        if (window.innerWidth <= 768) {
+            e.stopPropagation(); // Phép thuật nằm ở đây: Chặn không cho lệnh click bay ra ngoài
+            this.classList.toggle("active");
+        }
+    });
+
+    // Khi click ra vùng trống ngoài web thì tự động thu cụm cờ lại
+    document.addEventListener("click", function (e) {
+        if (window.innerWidth <= 768 && langFlagsWrap.classList.contains("active")) {
+            // Nếu click ở ngoài cụm cờ thì mới đóng
+            if (!langFlagsWrap.contains(e.target)) {
+                langFlagsWrap.classList.remove("active");
+            }
+        }
+    });
+}
+
 });
+
+
 

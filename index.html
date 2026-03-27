@@ -35,6 +35,8 @@
                 <img class="header_logo" src="assets/img/logo_HX.png">
             </a>
 
+
+
             <div class="header_mobileWrap">
                 <div title="Giỏ hàng" class="icon_cartWrap">
                     <svg id="icon_cart" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -82,30 +84,8 @@
 
                     </ul>
                 </div>
-
-                        <div class="language_top">
-                            <!-- Wrapper ngôn ngữ -->
-                            <div class="lang-switch notranslate">
-                                <!-- Vị trí Google sẽ render select (ẩn đi) -->
-                                <div id="google_translate_element" aria-hidden="true"></div>
-
-                                <!-- Cụm nút flag -->
-                                <div class="lang-flags" role="group" aria-label="Chọn ngôn ngữ">
-                                    <!-- Thêm/bớt nút tùy thị trường -->
-                                    <button class="lang-flag" data-lang="vi" title="Tiếng Việt" aria-label="Tiếng Việt">
-                                        <img src="assets/img/language/vietnam.png" class="flag_1" />
-                                    </button>
-                                    <button class="lang-flag" data-lang="en" title="English" aria-label="English">
-                                        <img src="assets/img/language/united-kingdom.png" class="flag_1" />
-                                    </button>
-                                    <button class="lang-flag" data-lang="ko" title="한국어" aria-label="Korean">
-                                        <img src="assets/img/language/ko.png" class="flag_1" />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                         
-    </div>
+            </div>
     <!-- End menu nav mobile -->
             <div id="no_header" class="header_info">
                 <div class="header_wrap">
@@ -199,8 +179,8 @@
             <div class="products_container">
                 <h1 class="products_title">Sản Phẩm</h1>
                 <hr>
+                
                 <div class="product_nav">
-                    <div class="product_navTitle">Danh mục: </div>
                     <div class="product_navList">
                         <div class="product_nav--item active" data-filter="all">Tất cả</div>
                         <div class="product_nav--item" data-filter="mypham">Mỹ phẩm</div>
@@ -208,43 +188,22 @@
                         <div class="product_nav--item" data-filter="thucpham">Thực phẩm</div>
                     </div>
                 </div>
-                <!-- Slider product -->
-                <!-- <div class="products_item">
-                    <div class="product_slider">
-                        <img src="assets/img/detail_kem_chong_nang.png" class="products_item--img" alt="img_suncream">
-                        <img src="assets/img/detail_mieng_tay_trang.png" class="products_item--img" alt="img_cleansing">
-                        <img src="assets/img/detail_mat_na.png" class="products_item--img" alt="img_mask">
 
-                    </div>
-
-                    <button class="product_button--next button product_button">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                            <path d="M439.1 297.4C451.6 309.9 451.6 330.2 439.1 342.7L279.1 502.7C266.6 515.2
-                            246.3 515.2 233.8 502.7C221.3 490.2 221.3 469.9 233.8 457.4L371.2 320L233.9 182.6C221.4
-                            170.1 221.4 149.8 233.9 137.3C246.4 124.8 266.7 124.8 279.2 137.3L439.2 297.3z"/></svg>
-                    </button >
-                    <button class="product_button--prev button product_button">
-                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
-                        <path d="M201.4 297.4C188.9 309.9 188.9 330.2 201.4 342.7L361.4 502.7C373.9 515.2
-                        394.2 515.2 406.7 502.7C419.2 490.2 419.2 469.9 406.7 457.4L269.3 320L406.6 182.6C419.1
-                        170.1 419.1 149.8 406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3L201.3 297.3z"/></svg>
-                    </button>
-
-                </div> -->
                 <div class="product_list">
                     <div
                         class="product_track"
                         data-sheet-id="1WfZltI7HJ68zZM-hTRRsJXnPdVNxOM6Tk6OrXny4G68"
                         data-sheet-gid="0"
                     >
-                        <p class="google-sheet-status">Dang tai san pham...</p>
+                        <p class="google-sheet-status">Đang tải sản phẩm...</p>
                     </div>
-                    <button class="product_button--next button product_button">
-                        ›
-                    </button>
-                    <button class="product_button--prev button product_button">
-                        ‹
-                    </button>
+                    
+                    <div class="load-more_wrap">
+                        <button type="button" id="load-more-btn" class="btn_loadMore" style="display: none;">
+                            Xem thêm sản phẩm
+                        </button>
+                    </div>
+                    
                 </div>
             </div>
         </section>
@@ -403,6 +362,7 @@
         </div>
     </footer>
     <!-- End footer -->
+
     <!-- Form popup đặt hàng -->
     <div class="order" id="order">
         <div class="order__overlay"></div>
@@ -483,6 +443,68 @@
         </div>
     </div>
     <!-- End form popup -->
+
+    <div class="popup_product" style="display: none;">
+        <div class="popup_product--overlay"></div>
+        <div class="popup_productWrap">
+            <div id="btn_closePopup" class="header_popup--btnClose">
+              <div>✕</div>  
+            </div>
+            <div class="popup_productTop">
+                <img src="https://hoaxinhstore.com/assets/img/mp_kemduongam.png" alt="Kem Dưỡng Ẩm, Kem Lót Dầu Cừu Vitamin KICHO Sheep oil cream Lanolin &amp; Berry 65ml" class="popup_product--img">
+                <div class="popup_productMain">
+                    <h1 class="popup_product--title">Kem Dưỡng Ẩm, Kem Lót Dầu Cừu Vitamin KICHO Sheep oil cream Lanolin &amp; Berry 65ml</h1>
+                    <h2 class="popup_product--price">420.000 đ</h2>
+                    <div class="popup_product--summary" style="display: none;"></div>
+                    <div class="popup_productAction">
+                        <div class="qty-wrapperProduct">
+                            <button type="button" class="qty-btn" id="popup-qty-minus">-</button>
+                            <input type="number" name="qty" id="qty" value="1" min="1" class="cart_qtyProduct"> 
+                            <button type="button" class="qty-btn" id="popup-qty-plus">+</button>
+                        </div>
+
+                        <button class="popup_product--buyBtn no-btn" type="button" data-name="Kem Dưỡng Ẩm, Kem Lót Dầu Cừu Vitamin KICHO Sheep oil cream Lanolin &amp; Berry 65ml" data-price="420000">Đặt mua</button>
+                        <button class="popup_product--addCartBtn">
+                            <svg class="icon_addCartPopup" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640">
+                                <path d="M24 48C10.7 48 0 58.7 0 72C0 85.3 10.7 96 24 96L69.3 96C73.2 96 76.5 98.8 77.2 102.6L129.3 388.9C135.5 423.1 165.3 448 200.1 448L456 448C469.3 448 480 437.3 480 424C480 410.7 469.3 400 456 400L200.1 400C188.5 400 178.6 391.7 176.5 380.3L171.4 352L475 352C505.8 352 532.2 330.1 537.9 299.8L568.9 133.9C572.6 114.2 557.5 96 537.4 96L124.7 96L124.3 94C119.5 67.4 96.3 48 69.2 48L24 48zM208 576C234.5 576 256 554.5 256 528C256 501.5 234.5 480 208 480C181.5 480 160 501.5 160 528C160 554.5 181.5 576 208 576zM432 576C458.5 576 480 554.5 480 528C480 501.5 458.5 480 432 480C405.5 480 384 501.5 384 528C384 554.5 405.5 576 432 576z" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="popup_productDescWrap">
+                <div class="popup_productSectionHead">
+                    <p class="popup_product--eyebrow">Thông tin chi tiết</p>
+                    <h3 class="popup_product--subTitle">Chi tiết sản phẩm</h3>
+                </div>
+                <div class="popup_product--desc"><ul class="popup_product--descList"><li>Chua co mo ta san pham.</li></ul></div>
+            </div>
+            <div class="popup_productSuggestWrap">
+                <div class="popup_productSectionHead">
+                    <p class="popup_product--eyebrow">Có thể bạn cũng thích</p>
+                    <h3 class="popup_product--subTitle">Sản phẩm gợi ý</h3>
+                </div>
+                <div class="popup_productSuggestSlider">
+                    <button type="button" class="popup_productSuggestNav popup_productSuggestNav--prev" aria-label="Sản phẩm trước" disabled="">
+                        ‹
+                    </button>
+                    <div class="popup_productSuggestViewport">
+                        <div class="popup_productSuggestList">
+            <article class="popup_productSuggestItem" data-product-index="1">
+                <img src="https://hoaxinhstore.com/assets/img/tbgd_xitphong.jpg" alt="Xịt phòng Shay">
+                <h4 class="popup_productSuggestTitle">Xịt phòng Shay</h4>
+                <p class="popup_productSuggestPrice">99.000 đ</p>
+            </article>
+        </div>
+    </div>
+                    <button type="button" class="popup_productSuggestNav popup_productSuggestNav--next" aria-label="Sản phẩm tiếp theo">
+                        ›
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Notificate -->
     <div class="successPopup" id="successPopup">
         <div class="successBox">
@@ -495,58 +517,6 @@
         </div>
     </div>
     <!-- End notificate -->
-
-    <!-- popup product -->
-    <div class="popup_product" style="display:none;">
-        <div class="popup_product--overlay"></div>
-        <div class="popup_productWrap">
-            <div id="btn_closePopup" class="header_popup--btnClose">✕</div>
-            <div class="popup_productTop">
-                <img src="assets/img/tbgd_camera.jpg" alt="CAMERA" class="popup_product--img">
-                <div class="popup_productMain">
-                    <h1 class="popup_product--title">Camera</h1>
-                    <h2 class="popup_product--price">1,500,000</h2>
-                    <div class="popup_product--summary"></div>
-                    <div class="popup_productAction">
-                        <div class="qty-wrapperProduct">
-                            <button type="button" class="qty-btn" id="popup-qty-minus">-</button>
-                            <input type="number" name="qty" id="qty" value="1" min="1" class="cart_qtyProduct"> 
-                            <button type="button" class="qty-btn" id="popup-qty-plus">+</button>
-                        </div>
-
-                        <button class="popup_product--buyBtn no-btn" type="button">Đặt mua</button>
-                        <button class="popup_product--addCartBtn">Thêm vào giỏ hàng</button>
-                    </div>
-                </div>
-            </div>
-            <div class="popup_productDescWrap">
-                <div class="popup_productSectionHead">
-                    <p class="popup_product--eyebrow">Thông tin chi tiết</p>
-                    <h3 class="popup_product--subTitle">Chi tiết sản phẩm</h3>
-                </div>
-                <div class="popup_product--desc">
-                </div>
-            </div>
-            <div class="popup_productSuggestWrap">
-                <div class="popup_productSectionHead">
-                    <p class="popup_product--eyebrow">Có thể bạn cũng thích</p>
-                    <h3 class="popup_product--subTitle">Sản phẩm gợi ý</h3>
-                </div>
-                <div class="popup_productSuggestSlider">
-                    <button type="button" class="popup_productSuggestNav popup_productSuggestNav--prev" aria-label="Sản phẩm trước">
-                        ‹
-                    </button>
-                    <div class="popup_productSuggestViewport">
-                        <div class="popup_productSuggestList"></div>
-                    </div>
-                    <button type="button" class="popup_productSuggestNav popup_productSuggestNav--next" aria-label="Sản phẩm tiếp theo">
-                        ›
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- End popup product -->
 
     <!-- Shopping cart -->
     <div class="cart">
@@ -589,6 +559,37 @@
         </div>
     </div>
     <!-- End shopping cart -->
+
+    <!-- Icon zalo -->
+     <a href="https://zalo.me/0819981900" target="_blank" rel="noopener noreferrer" class="icon_zalo">
+        <img src="assets/img/zalo-icon.png" alt="iconZalo">
+     </a>
+
+    <!-- lang_mobile -->
+    
+    <div class="language_top--mobile">
+        <!-- Wrapper ngôn ngữ -->
+        <div class="lang-switch notranslate">
+        <!-- Vị trí Google sẽ render select (ẩn đi) -->
+        <div id="google_translate_element" aria-hidden="true"></div>
+
+        <!-- Cụm nút flag -->
+        <div class="lang-flags_mobile" role="group" aria-label="Chọn ngôn ngữ">
+        <!-- Thêm/bớt nút tùy thị trường -->
+            <button type="button" class="lang-flag" data-lang="ko" title="한국어" aria-label="Korean">
+                <img src="assets/img/language/ko.png" class="flag_1" />
+            </button>
+            <button type="button" class="lang-flag" data-lang="vi" title="Tiếng Việt" aria-label="Tiếng Việt">
+                <img src="assets/img/language/vietnam.png" class="flag_1" />
+            </button>
+            <button type="button" class="lang-flag" data-lang="en" title="English" aria-label="English">
+                <img src="assets/img/language/united-kingdom.png" class="flag_1" />
+            </button>
+            
+        </div>
+    </div>
+
+    <!-- End_lang-moblie -->
 
     <!-- Script JS -->
     <script>
